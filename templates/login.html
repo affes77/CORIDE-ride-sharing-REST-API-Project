@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Login</h1>
+  <form method="POST" action="/api/auth/login" headers='Content-Type: application/json'>
+    <div class="form-group">
+      <label for="username">username</label>
+      <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label for="email">email</label>
+      <input type="text" class="form-control" id="email" name="email" placeholder="Enter email">
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" class="form-control" id="password" name="password" placeholder="Enter password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+
+  <script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+      fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })      
+      .then(response => response.json())
+      .then(data => {
+        const { access_token, expiration_time, username } = data;
+        if (access_token) {
+          window.location.replace(`/api/auth/dashboard?access_token=${access_token}&expiration_time=${expiration_time}&username=${username}`);
+        }
+      })
+      .catch(error => console.error(error));
+    });
+  </script>
+  
+  
+{% endblock %}

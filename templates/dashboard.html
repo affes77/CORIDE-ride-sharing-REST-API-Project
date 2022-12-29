@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+  </head>
+  <body>
+  <h1>Dashboard</h1>
+    <p>Welcome, {{ username }} </p>
+    <h2>Create Ride</h2>
+    <form method="POST" action="/api/rides/create" id="create-ride-form">
+        <input type="hidden" name="access_token" value="{{ access_token }}">
+      <div class="form-group">
+        <label for="start_location">Start Location</label>
+        <input type="text" class="form-control" id="start_location" name="start_location" placeholder="Enter start location">
+      </div>
+      <div class="form-group">
+        <label for="end_location">End Location</label>
+        <input type="text" class="form-control" id="end_location" name="end_location" placeholder="Enter end location">
+      </div>
+      <div class="form-group">
+        <label for="start_time">Start Time</label>
+        <input type="text" class="form-control" id="start_time" name="start_time" placeholder="YYYY-MM-DD HH:MM:SS">
+      </div>
+      <div class="form-group">
+        <label for="end_time">End Time</label>
+        <input type="text" class="form-control" id="end_time" name="end_time" placeholder="YYYY-MM-DD HH:MM:SS">
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter phone number">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <div id="create-ride-message" class="alert"></div>
+
+    <script>        
+        const form = document.getElementById('create-ride-form');
+        console.log(form);
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const accessToken = document.querySelector('input[name=access_token]').value;
+          console.log(`Access token: ${accessToken}`);
+          const formData = new FormData(form);
+          const data = {};
+          for (const [key, value] of formData.entries()) {
+             data[key] = value;}
+          const requestData = JSON.stringify(data);
+
+          const request = new XMLHttpRequest();
+          form.method='POST';
+          form.action='/api/rides/create';
+
+          request.open(form.method, form.action);
+          request.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+          request.setRequestHeader('Content-Type', 'application/json');
+          request.send(requestData);
+          request.addEventListener('load', (event) => {
+            console.log(event.target.responseText);
+          
+          if (request.status === 201) {
+              console.log('Ride created successfully');
+              const createConfirmation = document.createElement('p');
+              createConfirmation.classList.add('alert', 'alert-success');
+              createConfirmation.innerHTML = 'Ride created successfully !';
+              const messageContainer = document.getElementById('create-ride-message');
+              messageContainer.innerHTML = '';
+              messageContainer.appendChild(createConfirmation);
+            }
+          });
+
+
+          request.addEventListener('error', (event) => {
+          console.error('An error occurred while sending the request:', event);
+          });
+
+          request.send(formData);});
+      </script>
+      
+      
+      <h2>Delete Ride</h2>
+      <form id="delete-ride-form" method="post" action="/api/rides/delete/">
+        <input type="hidden" name="_method" value="DELETE">
+        <input type="hidden" name="access_token" value="{{ access_token }}">
+        <div class="form-group">
+          <label for="ride_id">Ride ID</label>
+          <input type="text" class="form-control" id="ride_id" name="ride_id" placeholder="Enter ride ID">
+        </div>
+        <button type="submit" class="btn btn-primary">Delete</button>
+      </form>
+      <div id="delete-ride-message" class="alert"></div>
+      
+      <script>
+        const form1 = document.getElementById('delete-ride-form');
+        console.log(form1);
+
+        form1.addEventListener('submit', (event) => {
+          console.log('Form submitted');
+          event.preventDefault();
+          console.log('Default behavior prevented');
+          const accessToken = document.querySelector('input[name=access_token]').value;
+          const rideId = document.querySelector('input[name=ride_id]').value;
+          console.log(`Access token: ${accessToken}`);
+          console.log(`Ride ID: ${rideId}`);
+          form1.action = `/api/rides/delete/${rideId}`;
+          console.log(`Form action: ${form1.action}`);
+      
+          const xhr = new XMLHttpRequest();
+          xhr.open('DELETE', form1.action);
+          xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+          xhr.onload = () => {
+            if (xhr.status === 200) {
+              console.log('Ride Deleted successfully');
+              const deleteConfirmation = document.createElement('p');
+              deleteConfirmation.classList.add('alert', 'alert-success');
+              deleteConfirmation.innerHTML = 'Ride deleted successfully !';
+              const messageContainer = document.getElementById('delete-ride-message');
+              messageContainer.innerHTML = '';
+              messageContainer.appendChild(deleteConfirmation);
+            } 
+          };
+          xhr.onerror = () => {
+            console.log('Error deleting ride: ' + xhr.statusText);
+          };
+          xhr.send();
+        });
+      </script>
+
+
+      <h2>Modify Ride</h2>
+      <form id="modify-ride-form" method="POST" action="/api/rides/modify/">
+        <input type="hidden" name="_method" value="PUT">
+        <input type="hidden" name="access_token" value="{{ access_token }}">
+        <div class="form-group">
+          <label for="ride_id2">Ride ID</label>
+          <input type="text" class="form-control" id="ride_id2" name="ride_id2" placeholder="Enter ride ID">
+        </div>
+        <div class="form-group">
+          <label for="start_location2">Start Location</label>
+          <input type="text" class="form-control" id="start_location2" name="start_location2" placeholder="Enter start location">
+        </div>
+        <div class="form-group">
+          <label for="end_location2">End Location</label>
+          <input type="text" class="form-control" id="end_location2" name="end_location2" placeholder="Enter end location">
+        </div>
+        <div class="form-group">
+          <label for="start_time2">Start Time</label>
+          <input type="text" class="form-control" id="start_time2" name="start_time2" placeholder="YYYY-MM-DD HH:MM:SS">
+        </div>
+        <div class="form-group">
+          <label for="end_time2">End Time</label>
+          <input type="text" class="form-control" id="end_time2" name="end_time2" placeholder="YYYY-MM-DD HH:MM:SS">
+        </div>
+        <div class="form-group">
+          <label for="phone2">Phone Number</label>
+          <input type="text" class="form-control" id="phone2" name="phone" placeholder="Enter Phone Number">
+        </div>
+        <button type="submit" class="btn btn-primary">Modify</button>
+      </form>
+      <div id="modify-ride-message" class="alert"></div>
+    
+      <script>
+        const form2 = document.getElementById('modify-ride-form');
+        console.log(form2);
+        form2.addEventListener('submit', (event) => {
+          console.log('Form submitted');
+          event.preventDefault();
+          console.log('Default behavior prevented');
+
+          const accessToken = document.querySelector('input[name=access_token]').value;
+          const rideId2 = document.querySelector('input[name=ride_id2]').value;
+          const formData2 = new FormData(form2);
+          console.log(`Access token: ${accessToken}`);
+          console.log(`Ride ID: ${rideId2}`);
+          console.log(`Form data:`, formData2);
+      
+          form2.action = `/api/rides/modify/${rideId2}`;
+          console.log(`Form action: ${form2.action}`);
+      
+          const xhr2 = new XMLHttpRequest();
+          xhr2.open('PUT', form2.action);
+          xhr2.setRequestHeader('Content-Type', 'application/json');
+          xhr2.setRequestHeader('Authorization', `Bearer ${accessToken}`);
+
+          xhr2.onload = () => {
+            if (xhr2.status === 200) {
+              console.log('Ride modified successfully');
+              const modifyConfirmation = document.createElement('p');
+              modifyConfirmation.classList.add('alert', 'alert-success');
+              modifyConfirmation.innerHTML = 'Ride modified successfully !';
+              const messageContainer2 = document.getElementById('modify-ride-message');
+              messageContainer2.innerHTML = '';
+              messageContainer2.appendChild(modifyConfirmation);
+            } 
+          };
+          xhr2.onerror = () => {
+            console.log('Error modifying ride: ' + xhr2.statusText);
+          };
+          const data = JSON.stringify({
+            start_location: formData2.get('start_location2'),
+            end_location: formData2.get('end_location2'),
+            start_time: formData2.get('start_time2'),
+            end_time: formData2.get('end_time2'),
+            phone: formData2.get('phone2'),
+          });
+          xhr2.send(data);
+        });
+      </script>
+
+
+      <h2>Get All Ride</h2>
+      <button id="get-rides-button" class="btn btn-primary">Get All Rides</button>
+      <table id="rides-table" class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Ride ID</th>
+            <th scope="col">Driver</th>
+            <th scope="col">Start Location</th>
+            <th scope="col">End Location</th>
+            <th scope="col">Start Time</th>
+            <th scope="col">End Time</th>
+            <th scope="col">Phone Number</th>
+          </tr>
+        </thead>
+        <tbody id="rides-table-body">
+        </tbody>
+      </table>
+
+      <script>
+        const getRidesButton = document.getElementById('get-rides-button');
+        getRidesButton.addEventListener('click', () => {
+          console.log('Button clicked');
+
+          const xhr3 = new XMLHttpRequest();
+          xhr3.open('GET', '/api/rides/get');
+          xhr3.onload = () => {
+            if (xhr3.status === 200) {
+              const data = JSON.parse(xhr3.responseText);
+              console.log(data);
+
+              const ridesTableBody = document.getElementById('rides-table-body');
+              ridesTableBody.innerHTML = '';
+
+              data.forEach((ride) => {
+                const row = document.createElement('tr');
+                const rideIdCell = document.createElement('td');
+                rideIdCell.innerHTML = ride.ride_id;
+                const driverCell = document.createElement('td');
+                driverCell.innerHTML = ride.driver;
+                const startLocationCell = document.createElement('td');
+                startLocationCell.innerHTML = ride.start_location;
+                const endLocationCell = document.createElement('td');
+                endLocationCell.innerHTML = ride.end_location;
+                const startTimeCell = document.createElement('td');
+                startTimeCell.innerHTML = ride.start_time;
+                const endTimeCell = document.createElement('td');
+                endTimeCell.innerHTML = ride.end_time;
+                const phoneCell = document.createElement('td');
+                phoneCell.innerHTML = ride.phone;
+                row.appendChild(rideIdCell);
+                row.appendChild(driverCell);
+                row.appendChild(startLocationCell);
+                row.appendChild(endLocationCell);
+                row.appendChild(startTimeCell);
+                row.appendChild(endTimeCell);
+                row.appendChild(phoneCell);
+                ridesTableBody.appendChild(row);
+                });
+                }
+                };
+                xhr3.send();
+              });
+            </script>
+          </body>
+          </html>
+          
+

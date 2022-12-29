@@ -1,0 +1,240 @@
+openapi: 3.0.0
+components:
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+info:
+  title: Coride
+  version: 1.0.0
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      description: Registers a new user with the given username, email, and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: MedAmine
+                email:
+                  type: string
+                  example: MedAmine07@gmail.com
+                password:
+                  type: string
+                  example: MedAmine07
+      responses:
+        201:
+          description: User created successfully
+        400:
+          description: Request body is not in JSON format or missing required fields
+        409:
+          description: username or email already taken
+
+  /api/auth/login:
+    post:
+      summary: Login 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: MedAmine
+                email:
+                  type: string
+                  example: MedAmine07@gmail.com
+                password:
+                  type: string
+                  example: MedAmine07
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expiration_time:
+                    type: integer
+        400:
+          description: Missing required fields
+        401:
+          description: Invalid username or password
+
+
+  /api/rides/create:
+    post:
+      summary: Create a new ride
+      operationId: create_ride
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - start_location
+                - end_location
+                - start_time
+                - end_time
+                - phone
+              properties:
+                start_location:
+                  type: string
+                  example: mourouj3
+                end_location:
+                  type: string
+                  example: bir kassaa TBS
+                start_time:
+                  type: string
+                  format: date-time
+                  example: "2022-01-10 08:20:00"
+                end_time:
+                  type: string
+                  format: date-time
+                  example: "2022-01-10 08:35:00"
+                phone:
+                  type: integer
+                  example: 99 999 999
+      responses:
+        200:
+          description: Ride created successfully
+        400:
+          description: Missing required fields or invalid datetime format
+      security:
+        - BearerAuth: []
+
+
+  /api/rides/get:
+    get:
+     summary: Retrieve a list of all rides
+     operationId: get_rides
+     responses:
+      200:
+        description: List of rides retrieved successfully
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  ride_id:
+                    type: integer
+                    example: 1
+                  driver:
+                    type: string
+                    example: MedAmine
+                  phone:
+                    type: integer
+                    example: 99 999 999
+                  start_location:
+                    type: string
+                    example: mourouj3
+                  end_location:
+                    type: string
+                    example: bir kassaa TBS
+                  start_time:
+                    type: string
+                    format: date-time
+                    example: "2022-01-10 08:20:00"
+                  end_time:
+                    type: string
+                    format: date-time
+                    example: "2022-01-10 08:35:00"
+  /api/rides/delete/{ride_id}:
+    delete:
+      summary: Delete a ride
+      operationId: delete_ride
+      parameters:
+        - name: ride_id
+          in : path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Ride deleted successfully
+        404:
+          description: Ride not found
+        403:
+          description: You are not authorized to delete this ride
+        500:
+          description: Error deleting ride
+      security:
+        - BearerAuth: []
+
+  /api/rides/modify/{ride_id}:
+    put:
+      summary: Modify a ride
+      operationId: modify_ride
+      parameters:
+        - name: ride_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_location:
+                  type: string
+                  example: mourouj3
+                end_location:
+                  type: string
+                  example: bir kassaa TBS
+                start_time:
+                  type: string
+                  format: date-time
+                  example: "2022-01-10 08:20:00"
+                end_time:
+                  type: string
+                  format: date-time
+                  example: "2022-01-10 08:35:00"
+                phone:
+                  type: integer
+                  example: 90 000 000
+      responses:
+        200:
+          description: Ride modified successfully
+        404:
+          description: Ride not found
+        403:
+          description: You are not authorized to modify this ride
+        400:
+          description: Invalid start_time or end_time format
+        500:
+          description: Error modifying ride
+      security:
+        - BearerAuth: []
+
+
+                        
+      
