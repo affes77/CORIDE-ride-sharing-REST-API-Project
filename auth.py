@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, session, redirect, url_for
+from flask import Blueprint, request, jsonify, render_template
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from flask_login import  LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -18,23 +18,18 @@ def register():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-
     if not username or not email or not password:
         return jsonify({'message': 'Missing required fields'}), 400
-    
     user = User.query.filter_by(username=username).first()
     if user is not None:
         return jsonify({'message': 'username already taken'}), 400
-
     user = User.query.filter_by(email=email).first()
     if user is not None:
         return jsonify({'message': 'Email already taken'}), 400
-
     password_hash = generate_password_hash(password)
     user = User(username=username, email=email, password=password_hash)
     db.session.add(user)
     db.session.commit()
-
     return jsonify({'message': 'User created successfully'}), 201
 
 
@@ -44,16 +39,12 @@ def login():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-
     if not email or not username or not password:
         return jsonify({'message': 'Missing required fields'}), 400
-
     user = User.query.filter_by(username=username).first()
     if user is None or not check_password_hash(user.password, password) or user.email != email:
         return jsonify({'message': 'Invalid username or password'}), 401
-
     access_token = create_access_token(identity=username)
-
     response = jsonify({'access_token': access_token, 'expiration_time': 1800, 'username' : username})
     response.set_cookie('access_token', access_token, max_age=1800)
     return response, 200
@@ -88,7 +79,6 @@ def dashboard():
 
 @auth_bp.route('/logout', methods=['POST'])
 def logout():
-    # Delete the access token cookie
     response = jsonify({'message': 'Successfully logged out'})
     response.set_cookie('access_token', '', expires=0)
     return render_template('login.html')

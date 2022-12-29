@@ -14,22 +14,18 @@ def create_ride():
     start_location = data.get('start_location')
     end_location = data.get('end_location')
     start_time = data.get('start_time')
-    end_time = data.get('end_time')
-    
+    end_time = data.get('end_time')   
     if phone is None or start_location is None or end_location is None or start_time is None or end_time is None:
         return jsonify({'message': 'Missing required fields'}), 400
-
     try:
         start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
         end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
     except ValueError:
         return jsonify({'message': 'Invalid datetime format'}), 400
-
     current_user = get_jwt_identity()
     user = User.query.filter_by(username=current_user).first()
     if user is None:
         return jsonify({'message': 'Invalid user'}), 401
-
     ride = Ride(driver=user,phone=phone, start_location=start_location, end_location=end_location, start_time=start_time, end_time=end_time)
     try:
         db.session.add(ride)
@@ -49,15 +45,12 @@ def modify_ride(ride_id):
     end_location = data.get('end_location')
     start_time = data.get('start_time')
     end_time = data.get('end_time')
-
     ride = Ride.query.get(ride_id)
     if ride is None:
         return jsonify({'message': 'Ride not found'}), 404
-
     current_user = get_jwt_identity()
     if ride.driver.username != current_user:
         return jsonify({'message': 'You are not authorized to modify this ride'}), 403
-
     if phone:
         ride.phone = phone
     if start_location:
@@ -95,7 +88,6 @@ def delete_ride(ride_id):
     current_user = get_jwt_identity()
     if ride.driver.username != current_user:
         return jsonify({'message': 'You are not authorized to delete this ride'}), 403
-
     try:
         db.session.delete(ride)
         db.session.commit()
