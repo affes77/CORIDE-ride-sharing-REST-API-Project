@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, session, redirect, url_for
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 from flask_login import  LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -54,7 +54,9 @@ def login():
 
     access_token = create_access_token(identity=username)
 
-    return jsonify({'access_token': access_token, 'expiration_time': 1800, 'username' : username}), 200
+    response = jsonify({'access_token': access_token, 'expiration_time': 1800, 'username' : username})
+    response.set_cookie('access_token', access_token, max_age=1800)
+    return response, 200
 
 
 @auth_bp.route('/protected', methods=['GET'])
@@ -83,4 +85,11 @@ def dashboard():
         return jsonify({'message': 'Missing required query parameters'}), 400
     
     return render_template('dashboard.html', access_token=access_token, expiration_time=expiration_time, username=username)
+
+@auth_bp.route('/logout', methods=['POST'])
+def logout():
+    # Delete the access token cookie
+    response = jsonify({'message': 'Successfully logged out'})
+    response.set_cookie('access_token', '', expires=0)
+    return render_template('login.html')
 
